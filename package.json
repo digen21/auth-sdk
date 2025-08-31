@@ -1,5 +1,5 @@
 {
-  "name": "auth-sdk",
+  "name": "@dmxdev/auth-sdk",
   "version": "1.0.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -13,7 +13,7 @@
   "keywords": [],
   "author": "DMX214",
   "license": "ISC",
-  "description": "",
+  "description": "Auth SDK ready to integrate",
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
     "@types/express": "^5.0.3",
@@ -28,5 +28,13 @@
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.18.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/digen21/auth-sdk.git"
+  },
+  "bugs": {
+    "url": "https://github.com/digen21/auth-sdk/issues"
+  },
+  "homepage": "https://github.com/digen21/auth-sdk#readme"
 }
