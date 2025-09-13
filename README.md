@@ -1,46 +1,148 @@
-# Auth-SDK
+# @dmxdev/auth-sdk
 
-A simple authentication SDK for Node.js projects. This SDK provides authentication strategies and utilities for secure login and token management.
+A simple, extensible authentication SDK for Node.js and Express applications.  
+Supports manual login, JWT authentication, refresh tokens, and easy integration with Mongoose models.
 
 ## Features
-- Manual login strategy
-- JWT utilities
-- Configurable authentication services
-- Error handling
+
+- Manual authentication (username/email + password)
+- JWT-based authentication middleware
+- Refresh token support
+- Easy integration with Express and Mongoose
+- Error handling utilities
 
 ## Installation
 
 ```bash
-npm install my-auth-sdk
+npm install @dmxdev/auth-sdk
 ```
 
 ## Usage
 
-### Importing in your project
+### 1. Import and Setup
 
-```js
-const authSDK = require('my-auth-sdk');
-```
+```javascript
+import {
+  AuthSDK,
+  AuthSDKError,
+  AuthTypesEnum,
+  passport,
+} from "@dmxdev/auth-sdk";
+import mongoose from "mongoose";
+import express from "express";
 
-Or, if using the local dist folder for development:
+const app = express();
+app.use(express.json());
 
-```js
-const authSDK = require('../dist');
-```
+// Connect to MongoDB
+mongoose.connect("mongodb://<your-mongo-uri>");
 
-### Example: Manual Login
-
-```js
-const manualLogin = require('../dist/strategies/manual.login');
-
-manualLogin.login({ username: 'user', password: 'pass' })
-  .then(user => {
-    // handle authenticated user
+// Define your User model
+const User = mongoose.model(
+  "User",
+  new mongoose.Schema({
+    username: String,
+    password: String,
   })
-  .catch(err => {
-    // handle error
-  });
+);
+
+// Configure AuthSDK
+AuthSDK.configure(
+  app,
+  {
+    authType: AuthTypesEnum.MANUAL,
+    jwtSecret: "your-secret",
+    requireRefreshToken: true,
+    tokenExpiry: "15m",
+    refreshTokenExpiry: "7d",
+  },
+  {
+    UserModel: User,
+  }
+);
 ```
+
+### 2. Register Route
+
+```javascript
+app.post("/register", async (req, res) => {
+  const { username, password, email } = req.body;
+  try {
+    const data = await AuthSDK.register({
+      username,
+      email,
+      password,
+    });
+    res.json(data);
+  } catch (error) {
+    if (error instanceof AuthSDKError) {
+      res.status(400).json({ error: error.message });
+    }
+  }
+});
+```
+
+### 3. Login Route
+
+```javascript
+app.post("/login", async (req, res) => {
+  const { username, password } = req.body;
+  try {
+    const data = await AuthSDK.login({
+      username,
+      password,
+    });
+    res.json(data);
+  } catch (error) {
+    if (error instanceof AuthSDKError) {
+      res.status(400).json({ error: error.message });
+    }
+  }
+});
+```
+
+### 4. Protected Route (Get Authenticated User)
+
+```javascript
+app.get("/me", AuthSDK.authenticate, (req, res) => {
+  const user = AuthSDK.getLoggedInUser(req);
+  res.json(user);
+});
+```
+
+### 5. Start Server
+
+```javascript
+app.listen(3000, () => {
+  console.log("Server running on port 3000");
+});
+```
+
+## API Reference
+
+### AuthSDK.configure(app, config, models)
+
+Initializes the SDK with your Express app, configuration, and Mongoose models.
+
+### AuthSDK.register(userData)
+
+Registers a new user.
+
+### AuthSDK.login(credentials)
+
+Authenticates a user and returns JWT (and refresh token if enabled).
+
+### AuthSDK.authenticate
+
+Express middleware to protect routes using JWT.
+
+### AuthSDK.getLoggedInUser(req)
+
+Returns the authenticated user from the request.
+
+### AuthSDKError
+
+Base error class for SDK errors.
 
 ## Project Structure
 
@@ -51,7 +153,6 @@ Auth-SDK/
 │   ├── errors.ts
 │   ├── index.ts
 │   ├── types.ts
-│   ├── services/
 │   ├── strategies/
 │   │   └── manual.login.ts
 │   └── utils/
@@ -63,10 +164,4 @@ Auth-SDK/
 └── tsconfig.json
 ```
 
-## Contributing
-
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
-
 ## License
-
-ISC
