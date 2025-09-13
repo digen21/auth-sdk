@@ -6,7 +6,7 @@
     "outDir": "./dist",           // ✅ compiled JS goes here
     "rootDir": "./src",           // ✅ your source files
     "strict": true,               // ✅ type safety
-    "esModuleInterop": true,      // ✅ allow import express, mongoose, etc.
+    "esModuleInterop": true,      // ✅ allow import express, mongoose, etc
     "skipLibCheck": true
   },
   "include": ["src"],
