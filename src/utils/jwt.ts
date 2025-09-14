@@ -1,8 +1,7 @@
-import * as jwt from "jsonwebtoken";
-import { StringValue } from "ms";
+import * as jwt from 'jsonwebtoken';
+import { StringValue } from 'ms';
 
-import { getConfig } from "../config";
-import { ManualAuthConfig, TwoFactorAuthConfig } from "../types";
+import { getConfig } from '../config';
 
 /**
  * Signs a JWT token with the provided payload and expiration time.
@@ -29,13 +28,11 @@ export const signToken = (payload: object, expiresIn?: StringValue) => {
 
   // TODO need to think on this
   if (!jwtSecret) {
-    throw new Error(
-      "JWT Secret is not configured for the current authentication type."
-    );
+    throw new Error('JWT Secret is not configured for the current authentication type.');
   }
 
   return jwt.sign(payload, jwtSecret, {
-    expiresIn: expiresIn ?? "1d",
+    expiresIn: expiresIn ?? '1d',
   });
 };
 
@@ -51,7 +48,7 @@ export const verifyToken = (token: string) => {
 
   // TODO need to think on this
   if (!jwtSecret) {
-    throw new Error("JWT Secret is not configured.");
+    throw new Error('JWT Secret is not configured.');
   }
 
   return jwt.verify(token, jwtSecret);

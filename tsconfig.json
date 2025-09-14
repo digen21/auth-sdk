@@ -2,13 +2,13 @@
   "compilerOptions": {
     "target": "ES2019",
     "module": "CommonJS",
-    "declaration": true,          // ✅ generates .d.ts files for TypeScript users
-    "outDir": "./dist",           // ✅ compiled JS goes here
-    "rootDir": "./src",           // ✅ your source files
-    "strict": true,               // ✅ type safety
-    "esModuleInterop": true,      // ✅ allow import express, mongoose, etc
+    "declaration": true, // ✅ generates .d.ts files for TypeScript users
+    "outDir": "./dist", // ✅ compiled JS goes here
+    "rootDir": "./src", // ✅ your source files
+    "strict": true, // ✅ type safety
+    "esModuleInterop": true, // ✅ allow import express, mongoose, etc
     "skipLibCheck": true
   },
   "include": ["src"],
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["node_modules", "dist", "**/*.test.ts"]
 }

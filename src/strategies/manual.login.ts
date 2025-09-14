@@ -1,10 +1,10 @@
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
-import { getConfig, getModels } from "../config";
-import { UnauthorizedError, ValidationError } from "../errors";
-import { ManualLoginInput, ManualRegisterInput } from "../types";
-import { signToken } from "../utils/jwt";
+import { getConfig, getModels } from '../config';
+import { UnauthorizedError, ValidationError } from '../errors';
+import { ManualLoginInput, ManualRegisterInput } from '../types';
+import { signToken } from '../utils/jwt';
 
 export class ManualAuthService {
   /**
@@ -24,10 +24,10 @@ export class ManualAuthService {
     const { email, username, password } = data;
 
     if ((!email && !username) || !password) {
-      throw new ValidationError("Email/Username and Password required");
+      throw new ValidationError('Email/Username and Password required');
     }
 
-    const orConditions: any[] = [];
+    const orConditions = [];
 
     if (email) {
       orConditions.push({ email });
@@ -39,14 +39,14 @@ export class ManualAuthService {
 
     // If nothing is provided, throw error
     if (orConditions.length === 0) {
-      throw new Error("Either email or username must be provided");
+      throw new Error('Either email or username must be provided');
     }
 
     const existing = await UserModel.findOne({
       $or: orConditions,
     });
 
-    if (existing) throw new ValidationError("User already exists");
+    if (existing) throw new ValidationError('User already exists');
 
     const hashed = await bcrypt.hash(password, 10);
 
@@ -72,10 +72,10 @@ export class ManualAuthService {
     const { email, username, password } = data;
 
     if ((!email && !username) || !password) {
-      throw new ValidationError("Email/Username and Password required");
+      throw new ValidationError('Email/Username and Password required');
     }
 
-    const orConditions: any[] = [];
+    const orConditions = [];
 
     if (email) {
       orConditions.push({ email });
@@ -87,30 +87,27 @@ export class ManualAuthService {
 
     // If nothing is provided, throw error
     if (orConditions.length === 0) {
-      throw new Error("Either email or username must be provided");
+      throw new Error('Either email or username must be provided');
     }
 
     const user = await UserModel.findOne({
       $or: orConditions,
     });
 
-    if (!user) throw new UnauthorizedError("Invalid credentials");
+    if (!user) throw new UnauthorizedError('Invalid credentials');
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) throw new UnauthorizedError("Invalid credentials");
+    const isMatch = await bcrypt.compare(password, user.password as string);
+    if (!isMatch) throw new UnauthorizedError('Invalid credentials');
 
     const config = getConfig();
 
     const token = jwt.sign({ id: user._id }, config.jwtSecret!, {
-      expiresIn: config.tokenExpiry || "1d",
+      expiresIn: config.tokenExpiry || '1d',
     });
 
     let refreshToken: string | undefined;
     if (config.requireRefreshToken) {
-      const refresh = signToken(
-        { id: user._id },
-        config.refreshTokenExpiry || "7d"
-      );
+      const refresh = signToken({ id: user._id }, config.refreshTokenExpiry || '7d');
       refreshToken = refresh;
     }
 

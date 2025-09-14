@@ -1,11 +1,11 @@
-import { Application, NextFunction, Request, Response } from "express";
-import { getLoggedInUser as loggedInUser } from "./common";
-import { setConfig, setModels } from "./config";
-import { AuthDecorator, passport } from "./decorators/jwt";
-import { AuthSDKError } from "./errors";
-import { setupJwtStrategy as jwtStrategy } from "./strategies/jwt.strategy";
-import { ManualAuthService } from "./strategies/manual.login";
-import { AuthSDKConfig, AuthTypesEnum, ModelsConfig } from "./types";
+import { Application, NextFunction, Request, Response } from 'express';
+import { getLoggedInUser as loggedInUser } from './common';
+import { setConfig, setModels } from './config';
+import { AuthDecorator, passport } from './decorators/jwt';
+import { AuthSDKError } from './errors';
+import { setupJwtStrategy as jwtStrategy } from './strategies/jwt.strategy';
+import { ManualAuthService } from './strategies/manual.login';
+import { AuthSDKConfig, AuthTypesEnum, ModelsConfig } from './types';
 
 export class AuthSDK {
   /**
@@ -18,11 +18,7 @@ export class AuthSDK {
    * @param config - The authentication SDK configuration options.
    * @param models - The models configuration required by the SDK.
    */
-  static configure(
-    app: Application,
-    config: AuthSDKConfig,
-    models: ModelsConfig
-  ) {
+  static configure(app: Application, config: AuthSDKConfig, models: ModelsConfig) {
     this.init(config, models);
     this.setupJwtStrategy();
     app.use(this.initialize());
@@ -97,7 +93,7 @@ export class AuthSDK {
    * This middleware does not use sessions and expects a valid JWT token in the request.
    */
   static authenticate(req: Request, res: Response, next: NextFunction) {
-    return passport.authenticate("jwt", { session: false })(req, res, next);
+    return passport.authenticate('jwt', { session: false })(req, res, next);
   }
 }
 

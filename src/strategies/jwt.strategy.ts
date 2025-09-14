@@ -1,13 +1,13 @@
-import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
-import passport from "passport";
-import { getConfig, getModels } from "../config";
+import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
+import passport from 'passport';
+import { getConfig, getModels } from '../config';
 
 export const setupJwtStrategy = () => {
   const config = getConfig();
   const { UserModel } = getModels();
 
   if (!config.jwtSecret) {
-    throw new Error("JWT Secret is not configured.");
+    throw new Error('JWT Secret is not configured.');
   }
 
   const options = {
@@ -26,6 +26,6 @@ export const setupJwtStrategy = () => {
       } catch (err) {
         return done(err, false);
       }
-    })
+    }),
   );
 };

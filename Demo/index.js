@@ -1,55 +1,48 @@
-import {
-  AuthSDK,
-  AuthSDKError,
-  AuthTypesEnum,
-  passport,
-} from "../dist/index.js";
-import mongoose from "mongoose";
-import express from "express";
+import { AuthSDK, AuthSDKError, AuthTypesEnum, passport } from '@dmxdev/auth-sdk';
+import mongoose from 'mongoose';
+import express from 'express';
 
 const app = express();
 
 app.use(express.json());
 
-mongoose.connect(
-  "mongodb+srv://digen21:Digenmore421@cluster0.9jqwume.mongodb.net/auth-sdk"
-);
+mongoose.connect('mongodb+srv://digen21:Digenmore421@cluster0.9jqwume.mongodb.net/auth-sdk');
 
-mongoose.connection.on("connected", () => {
-  console.log("Connected to MongoDB");
+mongoose.connection.on('connected', () => {
+  console.log('Connected to MongoDB');
 });
 
-mongoose.connection.on("error", (err) => {
-  console.log("Error connecting to MongoDB", err);
+mongoose.connection.on('error', (err) => {
+  console.log('Error connecting to MongoDB', err);
 });
 
-mongoose.connection.on("disconnected", () => {
-  console.log("Disconnected from MongoDB");
+mongoose.connection.on('disconnected', () => {
+  console.log('Disconnected from MongoDB');
 });
 
 const User = mongoose.model(
-  "User",
+  'User',
   new mongoose.Schema({
     username: String,
     password: String,
-  })
+  }),
 );
 
 AuthSDK.configure(
   app,
   {
     authType: AuthTypesEnum.MANUAL,
-    jwtSecret: "demo",
+    jwtSecret: 'demo',
     requireRefreshToken: true,
-    tokenExpiry: "15m",
-    refreshTokenExpiry: "7d",
+    tokenExpiry: '15m',
+    refreshTokenExpiry: '7d',
   },
   {
     UserModel: User,
-  }
+  },
 );
 
-app.post("/login", async (req, res) => {
+app.post('/login', async (req, res) => {
   const { username, password } = req.body;
   try {
     const data = await AuthSDK.login({
@@ -64,7 +57,7 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.post("/register", async (req, res) => {
+app.post('/register', async (req, res) => {
   const { username, password, email } = req.body;
 
   try {
@@ -81,7 +74,7 @@ app.post("/register", async (req, res) => {
   }
 });
 
-app.get("/me", AuthSDK.authenticate, (req, res) => {
+app.get('/me', AuthSDK.authenticate, (req, res) => {
   const user = AuthSDK.getLoggedInUser(req);
   res.json(user);
 });
