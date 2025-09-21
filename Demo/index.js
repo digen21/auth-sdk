@@ -1,5 +1,4 @@
 import { AuthSDK, AuthSDKError, AuthTypesEnum } from '@dmxdev/auth-sdk';
-import { EmailSDK } from '@dmxdev/email-sdk';
 import express from 'express';
 import mongoose from 'mongoose';
 
@@ -60,24 +59,6 @@ AuthSDK.configure(
     EmailModel: Email,
   },
 );
-
-// const emailSDK = new EmailSDK({
-//   host: 'smtp.ethereal.email',
-//   port: 587,
-//   secure: false,
-//   user: 'zola34@ethereal.email',
-//   pass: 'WY741mDe6zw2Ndfg6C',
-// });
-
-// emailSDK
-//   .sendMail({
-//     subject: 'Test Email',
-//     to: 'hello@gmail.com',
-//     html: '<h1>This is a test email</h1>',
-//     text: 'This is a test email',
-//   })
-//   .then()
-//   .catch();
 
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
