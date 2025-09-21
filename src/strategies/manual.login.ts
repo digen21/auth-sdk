@@ -20,7 +20,7 @@ export class ManualAuthService {
    * @throws {ValidationError} If required fields are missing or user already exists.
    */
   static async register(data: ManualRegisterInput) {
-    const { UserModel } = getModels();
+    const { UserModel, EmailModel, SecretModel } = getModels();
     const { email, username, password } = data;
 
     if ((!email && !username) || !password) {
@@ -50,11 +50,27 @@ export class ManualAuthService {
 
     const hashed = await bcrypt.hash(password, 10);
 
+    data.password = hashed;
+
     // Save everything from req.body but with hashed password
-    const user = await UserModel.create({
-      ...data,
-      password: hashed,
-    });
+    const user = await UserModel.create(data);
+
+    // If EmailModel and email are provided, create an email record
+    if (EmailModel && email) {
+      await EmailModel.create({
+        user: user._id,
+        email,
+        verified: false,
+      });
+    }
+
+    // If SecretModel and password are provided, create a secret record
+    if (SecretModel && data.password) {
+      const secret = await SecretModel.create({
+        user: user._id,
+        password: data.password,
+      });
+    }
 
     return user;
   }
@@ -68,7 +84,7 @@ export class ManualAuthService {
    * @throws UnauthorizedError If the credentials are invalid.
    */
   static async login(data: ManualLoginInput) {
-    const { UserModel } = getModels();
+    const { UserModel, EmailModel, SecretModel } = getModels();
     const { email, username, password } = data;
 
     if ((!email && !username) || !password) {
@@ -90,13 +106,32 @@ export class ManualAuthService {
       throw new Error('Either email or username must be provided');
     }
 
+    // If EmailModel and email are provided, check if email exists
+    if (EmailModel && email) {
+      const emailRecord = await EmailModel.findOne({ email });
+      if (!emailRecord) throw new UnauthorizedError('Invalid credentials');
+    }
+
+    // Find user by email or username
     const user = await UserModel.findOne({
       $or: orConditions,
     });
 
     if (!user) throw new UnauthorizedError('Invalid credentials');
 
-    const isMatch = await bcrypt.compare(password, user.password as string);
+    let isMatch: boolean;
+
+    // if we have SecretModel, check there first
+    if (SecretModel) {
+      const secretRecord = await SecretModel.findOne({ user: user._id });
+      if (!secretRecord) throw new UnauthorizedError('Invalid credentials');
+
+      isMatch = await bcrypt.compare(password, secretRecord.password as string);
+      if (!isMatch) throw new UnauthorizedError('Invalid credentials');
+    }
+
+    // fallback to UserModel password check
+    isMatch = await bcrypt.compare(password, user.password as string);
     if (!isMatch) throw new UnauthorizedError('Invalid credentials');
 
     const config = getConfig();
@@ -112,6 +147,15 @@ export class ManualAuthService {
     }
 
     if (refreshToken) {
+      // save refresh token in SecretModel if available
+      if (SecretModel) {
+        await SecretModel?.updateOne({
+          user: user._id,
+          refreshToken,
+        });
+      }
+
+      // otherwise return it to the user
       return { user, token, refreshToken };
     }
     return { user, token };

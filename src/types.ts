@@ -48,6 +48,11 @@ export type UserDocument<ExtraFields = unknown> = Document & {
   password: string;
 } & ExtraFields;
 
+export type UserSecretDocument<ExtraFields = unknown> = Document & {
+  password: string;
+  refreshToken?: string;
+} & ExtraFields;
+
 /**
  * Using unknown as the default generic type means:
  * You’re saying: “We don’t know the exact type yet, but it must be a Document or compatible”.
@@ -57,10 +62,12 @@ export type UserDocument<ExtraFields = unknown> = Document & {
 // TODO need to think on UserDocument generic, we can not rely on it. As Use has any extra fields
 export interface ModelsConfig<
   TUser extends Document = UserDocument,
-  TSecret extends Document = Document,
+  TSecret extends Document = UserSecretDocument,
+  TEmail extends Document = Document,
 > {
   UserModel: Model<TUser>;
   SecretModel?: Model<TSecret>;
+  EmailModel?: Model<TEmail>;
 }
 
 export interface ManualLoginInput extends Record<string, unknown> {

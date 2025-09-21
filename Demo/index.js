@@ -1,6 +1,7 @@
-import { AuthSDK, AuthSDKError, AuthTypesEnum, passport } from '@dmxdev/auth-sdk';
-import mongoose from 'mongoose';
+import { AuthSDK, AuthSDKError, AuthTypesEnum } from '@dmxdev/auth-sdk';
+import { EmailSDK } from '@dmxdev/email-sdk';
 import express from 'express';
+import mongoose from 'mongoose';
 
 const app = express();
 
@@ -24,7 +25,23 @@ const User = mongoose.model(
   'User',
   new mongoose.Schema({
     username: String,
+  }),
+);
+
+const Email = mongoose.model(
+  'Email',
+  new mongoose.Schema({
+    email: String,
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  }),
+);
+
+const Secret = mongoose.model(
+  'Secret',
+  new mongoose.Schema({
+    refreshToken: String,
     password: String,
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   }),
 );
 
@@ -39,8 +56,28 @@ AuthSDK.configure(
   },
   {
     UserModel: User,
+    SecretModel: Secret,
+    EmailModel: Email,
   },
 );
+
+// const emailSDK = new EmailSDK({
+//   host: 'smtp.ethereal.email',
+//   port: 587,
+//   secure: false,
+//   user: 'zola34@ethereal.email',
+//   pass: 'WY741mDe6zw2Ndfg6C',
+// });
+
+// emailSDK
+//   .sendMail({
+//     subject: 'Test Email',
+//     to: 'hello@gmail.com',
+//     html: '<h1>This is a test email</h1>',
+//     text: 'This is a test email',
+//   })
+//   .then()
+//   .catch();
 
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
