@@ -1,6 +1,6 @@
-import { AuthSDK, AuthSDKError, AuthTypesEnum, passport } from '@dmxdev/auth-sdk';
-import mongoose from 'mongoose';
+import { AuthSDK, AuthSDKError, AuthTypesEnum } from '@dmxdev/auth-sdk';
 import express from 'express';
+import mongoose from 'mongoose';
 
 const app = express();
 
@@ -24,7 +24,23 @@ const User = mongoose.model(
   'User',
   new mongoose.Schema({
     username: String,
+  }),
+);
+
+const Email = mongoose.model(
+  'Email',
+  new mongoose.Schema({
+    email: String,
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  }),
+);
+
+const Secret = mongoose.model(
+  'Secret',
+  new mongoose.Schema({
+    refreshToken: String,
     password: String,
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   }),
 );
 
@@ -39,6 +55,8 @@ AuthSDK.configure(
   },
   {
     UserModel: User,
+    SecretModel: Secret,
+    EmailModel: Email,
   },
 );
 
